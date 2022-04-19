@@ -5,11 +5,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.mongo.demo.dal.UserDAL;
 import com.mongo.demo.dal.UserRepository;
@@ -31,29 +27,29 @@ public class UserController {
 		this.userDAL = userDAL;
 	}
 
-	@RequestMapping(value = "", method = RequestMethod.GET)
+	@GetMapping("")
 	public List<User> getAllUsers() {
 		LOG.info("Getting all users.");
 		return userRepository.findAll();
 	}
 
-	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)
+	@GetMapping("/{userId}")
 	public Optional<User> getUser(@PathVariable String userId) {
 		LOG.info("Getting user with ID: {}.", userId);
 		return userRepository.findById(userId);
 	}
 
-	@RequestMapping(value = "/create", method = RequestMethod.POST)
+	@PostMapping("/create")
 	public User addNewUsers(@RequestBody User user) {
 		LOG.info("Saving user.");
 		return userRepository.save(user);
 	}
 
 	// change method implementation to use DAL and hence MongoTemplate
-	@RequestMapping(value = "/settings/{userId}", method = RequestMethod.GET)
+	@GetMapping("/settings/{userId}")
 	public Object getAllUserSettings(@PathVariable String userId) {
 		Optional<User> user = userRepository.findById(userId);
-		if (user != null) {
+		if (user.isPresent()) {
 			return userDAL.getAllUserSettings(userId);
 		} else {
 			return "User not found.";
@@ -61,15 +57,15 @@ public class UserController {
 	}
 
 	// change method implementation to use DAL and hence MongoTemplate
-	@RequestMapping(value = "/settings/{userId}/{key}", method = RequestMethod.GET)
+	@GetMapping("/settings/{userId}/{key}")
 	public String getUserSetting(@PathVariable String userId, @PathVariable String key) {
 		return userDAL.getUserSetting(userId, key);
 	}
 
-	@RequestMapping(value = "/settings/{userId}/{key}/{value}", method = RequestMethod.GET)
+	@GetMapping("/settings/{userId}/{key}/{value}")
 	public String addUserSetting(@PathVariable String userId, @PathVariable String key, @PathVariable String value) {
 		Optional<User> user = userRepository.findById(userId);
-		if (user != null) {
+		if (user.isPresent()) {
 			userDAL.addUserSetting(userId, key, value);
 			return "Key added";
 		} else {
